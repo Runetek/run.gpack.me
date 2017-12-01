@@ -22,7 +22,6 @@ Route::post('jars', function (Request $request) {
             'file',
             'max:10240',
             'mimetypes:application/java-archive,application/zip',
-            'mimes:jar',
         ],
     ]);
     $jar = new Jar(['user_id' => 1]);
