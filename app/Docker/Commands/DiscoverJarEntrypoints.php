@@ -86,8 +86,6 @@ class DiscoverJarEntrypoints
         $stream->onStdout(function ($line) use (&$result) {
             try {
                 $result->response = json_decode($line, true);
-                $this->jar->setCustomProperty('entrypoints', $result->response);
-                $this->jar->save();
                 $result->success = true;
             } catch (Exception $e) {
                 $result->error = $e;
