@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Http\Request;
+use App\Jar;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,4 +16,12 @@
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::post('jars', function (Request $request) {
+    $jar = new Jar(['user_id' => 1]);
+    $jar->saveOrFail();
+    $jar->addMediaFromRequest('jar')
+        ->toMediaCollection();
+    return $jar->load('media');
 });
