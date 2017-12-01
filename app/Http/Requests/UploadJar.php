@@ -15,7 +15,7 @@ class UploadJar extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -46,7 +46,7 @@ class UploadJar extends FormRequest
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            'errors' => $validator->errors(),
+            'errors' => $validator->errors()->toArray(),
         ], 422));
     }
 }
