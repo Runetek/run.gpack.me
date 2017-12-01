@@ -32,5 +32,5 @@ Route::post('jars', function (Request $request) {
 
     dispatch(new ExtractJarEntrypoints($jar->media->first()));
 
-    return $jar->load('media');
+    return UserJar::make($jar->media->first());
 });
