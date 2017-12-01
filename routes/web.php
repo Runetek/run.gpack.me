@@ -3,9 +3,16 @@
 use Illuminate\Http\Request;
 use App\Jar;
 use App\Jobs\ExtractJarEntrypoints;
+use App\Http\Resources\UserJar;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('jars/{jar}', function (Jar $jar) {
+    $jar->load('media.model');
+
+    return UserJar::collection($jar->media);
 });
 
 Route::post('jars', function (Request $request) {
