@@ -23,7 +23,7 @@ Route::post('jars', function (UploadJar $request) {
     $jar->addMediaFromRequest('jar')
         ->toMediaCollection();
 
-    dispatch(new ExtractJarEntrypoints($jar->media->first()));
+    dispatch(new ExtractJarEntrypoints($jar->media()->first()));
 
     return UserJar::make($jar->media->first());
 });
