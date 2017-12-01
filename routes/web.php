@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use App\Jar;
 use App\Jobs\ExtractJarEntrypoints;
 use App\Http\Resources\UserJar;
+use App\Http\Requests\UploadJar;
 
 Route::get('/', function () {
     return view('welcome');
@@ -15,15 +16,7 @@ Route::get('jars/{jar}', function (Jar $jar) {
     return UserJar::collection($jar->media);
 });
 
-Route::post('jars', function (Request $request) {
-    $request->validate([
-        'jar' => [
-            'required',
-            'file',
-            'max:10240',
-            'mimetypes:application/java-archive,application/zip',
-        ],
-    ]);
+Route::post('jars', function (UploadJar $request) {
     $jar = new Jar(['user_id' => 1]);
     $jar->saveOrFail();
 
