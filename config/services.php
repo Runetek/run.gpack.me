@@ -19,6 +19,12 @@ return [
         'secret' => env('MAILGUN_SECRET'),
     ],
 
+    'runetek-sso' => [
+        'base_url' => str_finish(env('SSO_BASE_URL'), '/'),
+        'client_id' => env('SSO_CLIENT_ID'),
+        'client_secret' => env('SSO_CLIENT_SECRET'),
+    ],
+
     'ses' => [
         'key' => env('SES_KEY'),
         'secret' => env('SES_SECRET'),
