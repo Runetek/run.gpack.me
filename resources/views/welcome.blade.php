@@ -70,6 +70,7 @@
                 <div class="top-right links">
                     @auth
                         <a href="{{ url('/home') }}">Home</a>
+                        <a href="#">Logged in as {{ Auth::user()->name }}</a>
                     @else
                         <a href="{{ url('oauth') }}">Sign in with Runetek</a>
                     @endauth
