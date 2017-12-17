@@ -17,7 +17,7 @@ class CreateOauthUsersTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('remember_token')->nullable();
-            $table->string('token');
+            $table->text('token');
             $table->timestamps();
         });
     }
