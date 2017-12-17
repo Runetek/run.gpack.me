@@ -40,7 +40,7 @@ class RunetekSSOController extends Controller
 
         Auth::login($user, true);
 
-        return redirect('/');
+        return redirect('/home');
     }
 
     private function getOauthConfig()
