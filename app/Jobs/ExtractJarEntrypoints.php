@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Docker\Docker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -32,9 +33,9 @@ class ExtractJarEntrypoints implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(Docker $docker)
     {
-        $command = new DiscoverJarEntrypoints($this->jar);
+        $command = new DiscoverJarEntrypoints($docker, $this->jar);
 
         $result = $command->run();
 

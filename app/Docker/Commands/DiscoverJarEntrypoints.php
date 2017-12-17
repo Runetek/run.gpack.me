@@ -8,8 +8,7 @@ use Docker\API\Model\ContainerConfig;
 use Docker\API\Model\HostConfig;
 use Docker\Docker;
 
-
-class DiscoverJarEntrypoints
+class DiscoverJarEntrypoints extends Command
 {
     /** @var Model */
     private $jar;
@@ -17,8 +16,9 @@ class DiscoverJarEntrypoints
     /** @var string */
     private $containerId;
 
-    public function __construct(Media $jar)
+    public function __construct(Docker $docker, Media $jar)
     {
+        parent::__construct($docker);
         $this->jar = $jar;
     }
 
@@ -35,12 +35,13 @@ class DiscoverJarEntrypoints
                 ->last();
     }
 
-    private function getDockerConfig()
+    protected function config() : ContainerConfig
     {
+        $config = new ContainerConfig();
+
         $filename = $this->getJarFileName();
         $share_dir = $this->getShareDirectory();
 
-        $config = new ContainerConfig();
         $config->setImage('kylestev/jar-inspector:latest');
         $config->setCmd([sprintf('/jars/%s', $filename)]);
         $config->setVolumes([$share_dir => (object)[]]);
@@ -57,48 +58,13 @@ class DiscoverJarEntrypoints
         return $config;
     }
 
-    private function setup()
+    public function onStdout(string $line)
     {
-        $docker = new Docker();
-        $manager = $docker->getContainerManager();
-
-        $result = $manager->create($this->getDockerConfig());
-        $this->containerId = $result->getId();
-        $stream = $manager->attach($this->containerId, [
-            'stream' => true,
-            'stdout' => true,
-            'stderr' => true,
-        ]);
-
-        $manager->start($this->containerId);
-
-        return $stream;
+        var_dump('[normal line]', $line);
     }
 
-    public function run()
+    public function onStderr(string $line)
     {
-        $result = new stdClass();
-        $result->success = false;
-        $result->response = null;
-        $result->error = null;
-        $stream = $this->setup();
-
-        $stream->onStdout(function ($line) use (&$result) {
-            try {
-                $result->response = json_decode($line, true);
-                $result->success = true;
-            } catch (Exception $e) {
-                $result->error = $e;
-            }
-        });
-
-        $stream->onStderr(function ($line) use (&$result) {
-            $this->error($line);
-            $this->error = new \Exception('STDERR: '.rtrim($line));
-        });
-
-        $stream->wait();
-
-        return $result;
+        var_dump('[error]', $line);
     }
 }
