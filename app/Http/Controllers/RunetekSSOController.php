@@ -2,40 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
+use App\Auth\SSO;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RunetekSSOController extends Controller
 {
-    public function redirect(Request $request)
+    public function redirect(SSO $sso, Request $request)
     {
-        $sso = $this->getOauthConfig();
-        $query = http_build_query([
-            'client_id' => $sso['client_id'],
-            'redirect_uri' => url('oauth/callback'),
-            'response_type' => 'code',
-            'scope' => 'media:read media:write',
-        ]);
-
-        return redirect($sso['base_url'] . 'oauth/authorize?' . $query);
+        return redirect($sso->redirectUrl());
     }
 
-    public function callback(Request $request)
+    public function callback(SSO $sso, Request $request)
     {
         $http = new Client();
 
-        $sso = $this->getOauthConfig();
-        $response = $http->post($sso['base_url'] . 'oauth/token', [
-            'form_params' => [
-                'grant_type' => 'authorization_code',
-                'client_id' => $sso['client_id'],
-                'client_secret' => $sso['client_secret'],
-                'redirect_uri' => url('oauth/callback'),
-                'code' => $request->code,
-            ],
+        $token_response = $sso->exchangeAuthorizationCode($request->code);
+        $token = $token_response['access_token'];
+        $client = $sso->createApiClient($token);
+
+        $user_response = json_decode((string) $client->get('user')->getBody(), true);
+
+        $user = User::firstOrNew([
+            'id' => $user_response['id'],
         ]);
 
-        return json_decode((string)$response->getBody(), true);
+        $props = [
+            'name' => $user_response['name'],
+            'created_at' => $user_response['created_at'],
+            'token' => $token,
+        ];
+
+        $user->fill($props);
+        $user->save();
+
+        Auth::login($user, true);
+
+        return compact('user', 'token_response');
     }
 
     private function getOauthConfig()

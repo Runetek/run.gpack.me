@@ -11,20 +11,6 @@ use Illuminate\Contracts\Auth\Guard;
 class JarController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Guard $auth)
-    {
-        $user = $auth->user();
-
-        return UserJar::collection(
-            $user->jars()->paginate(25)
-        );
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -40,7 +26,7 @@ class JarController extends Controller
 
         dispatch(new ExtractJarEntrypoints($jar->media()->first()));
 
-        return UserJar::make($jar->media->first());
+        return new UserJar($jar->media->first());
     }
 
     /**
@@ -53,6 +39,6 @@ class JarController extends Controller
     {
         $jar->load('media.model');
 
-        return UserJar::collection($jar->media);
+        return new UserJar($jar->media->first());
     }
 }
